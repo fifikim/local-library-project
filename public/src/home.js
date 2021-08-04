@@ -1,49 +1,5 @@
 const { partitionBooksByBorrowedStatus, findBookById } = require("./books");
 
-// HELPER FUNCTIONS:
-
-function _sortBy(booksArr, property) {
-  return booksArr.reduce((acc, book) => {
-    let sortKey = book[property];
-    if (acc[sortKey]) {
-      acc[sortKey].count += 1;
-    } else {
-      acc[sortKey] = {
-        name: sortKey, 
-        count: 1
-      };
-    }
-    return acc;
-  }, {});
-}
-
-function _countBorrows(booksArr, property) {
-  return booksArr.reduce((acc, book) => {
-    let sortKey = book[property];
-    if (acc[sortKey]) {
-      acc[sortKey].count += book.borrows.length;
-    } else {
-      acc[sortKey] = {
-        name: sortKey, 
-        count: book.borrows.length
-      };
-    }
-    return acc;
-  }, {});
-}
-
-function _getMostPopular(obj) {
-  const counts = Object.values(obj);
-  let sortedCount = counts.sort((keyA, keyB) => keyA.count > keyB.count ? -1 : 1);
-  return (sortedCount.length > 5) ? sortedCount.slice(0, 5) : sortedCount;
-}
-
-function _getFullName(authors, id) {
-  const { name: {first, last} } = authors.find(author => author.id === id);
-  return `${first} ${last}`;
-}
-
-// FUNCTIONS:
 function getTotalBooksCount(books) {
   return books.length;
 }
@@ -57,24 +13,34 @@ function getBooksBorrowedCount(books) {
   return booksOut.length;
 }
 
+// HELPER FUNCTION FOR getMostCommonGenres, getMostPopularBooks, getMostPopularAuthors
+
+function _sortBy(booksArray, property, countBorrows = false) {
+  const grouped = booksArray.reduce((acc, book) => {
+    let sortKey = book[property];
+    let increment;
+    countBorrows ? increment = book.borrows.length : increment = 1;
+    acc[sortKey] ? acc[sortKey].count += increment : acc[sortKey] = {name: sortKey, count: increment};
+    return acc;
+  }, {});
+  const counts = Object.values(grouped);
+  let sortedCount = counts.sort((keyA, keyB) => keyA.count > keyB.count ? -1 : 1);
+  return sortedCount.length > 5 ? sortedCount.slice(0, 5) : sortedCount;
+}
+
 function getMostCommonGenres(books) {
-  const sortByGenre = _sortBy(books, 'genre');
-  return _getMostPopular(sortByGenre);
+  return _sortBy(books, 'genre');
 }
 
 function getMostPopularBooks(books) {
-  const sortByBorrows = _countBorrows(books, 'title');
-  return _getMostPopular(sortByBorrows);
+  return _sortBy(books, 'title', true);
 }
 
 function getMostPopularAuthors(books, authors) {
-  const sortByBorrows = _countBorrows(books, 'authorId');
-  const mostPopularIds = _getMostPopular(sortByBorrows);
-  return mostPopularIds.map(obj => {
-    return {
-      name: _getFullName(authors, obj.name), 
-      count: obj.count
-    };
+  const popularAuthors = _sortBy(books, 'authorId', true);
+  return popularAuthors.map(obj => {
+    const { name: {first, last} } = authors.find(author => author.id === obj.name);
+    return {name: `${first} ${last}`, count: obj.count};
   });
 }
 

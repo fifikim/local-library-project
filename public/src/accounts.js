@@ -8,7 +8,7 @@ function sortAccountsByLastName(accounts) {
   return accounts.sort((a, b) => a.name.last < b.name.last ? -1 : 1);
 }
 
-// HELPER FUNCTION FOR getTotalNumberOfBorrows AND getBooksPossessedByAccount
+// HELPER FUNCTION FOR getTotalNumberOfBorrows, getBooksPossessedByAccount
 function _getBorrowsByAccount(account, books) {
   return books.filter(book => {
     return book.borrows.find(borrow => borrow.id === account.id);
