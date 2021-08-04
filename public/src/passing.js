@@ -75,19 +75,23 @@ function getTotalNumberOfBorrows(account, books) {
   }, 0);
 }
 
+function getTotalNumberOfBorrows(account, books) {
+  const borrowed = books.filter(book => {
+    return book.borrows.find(borrow => borrow.id === account.id);
+  })
+  return borrowed.length;
+}
+
 function getBooksPossessedByAccount(account, books, authors) {
-  let acc = [];
-  for (let book of books) {
+  return books.reduce((acc, book) => {
     for (let borrow of book.borrows) {
-      if (borrow.id == account.id && borrow.returned === false) {
-        let bookObj = book;
-        let authorObj = authors.find(author => (author.id === bookObj.authorId));
-        bookObj["author"] = authorObj;
-        acc.push(bookObj);
+      if (borrow.id === account.id && borrow.returned === false) {
+        const author = authors.find(author => (author.id === book.authorId));
+        acc.push({...book, author});
       }
     }
-  }
-  return acc;
+    return acc;
+  }, [])
 }
 
 module.exports = {
