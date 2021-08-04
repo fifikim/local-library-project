@@ -8,12 +8,11 @@ function sortAccountsByLastName(accounts) {
   return accounts.sort((a, b) => a.name.last < b.name.last ? -1 : 1);
 }
 
-// HELPER FUNCTION FOR getTotalNumberOfBorrows, getBooksPossessedByAccount
+//HELPER FUNCTION FOR getTotalNumberOfBorrows, getBooksPossessedByAccount 
 function _getBorrowsByAccount(account, books) {
-  return books.filter(book => {
-    return book.borrows.find(borrow => borrow.id === account.id);
-  });
+  return books.filter(book => book.borrows.find(borrow => borrow.id === account.id));
 }
+//////////////////////////////////////////////////////////////////////////
 
 function getTotalNumberOfBorrows(account, books) {
   const borrowed = _getBorrowsByAccount(account, books);
@@ -24,8 +23,7 @@ function getBooksPossessedByAccount(account, books, authors) {
   const borrowed = _getBorrowsByAccount(account, books);
   const possessed = borrowed.filter(book => book.borrows[0].id === account.id && book.borrows[0].returned === false);
   return possessed.map(book => {
-    const author = authors.find(author => author.id === book.authorId);
-    return {...book, author};
+    return {...book, author: authors.find(author => author.id === book.authorId)};
   });
 }
 
