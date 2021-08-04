@@ -17,7 +17,7 @@ function getBorrowersForBook(book, accounts) {
     const acct = accounts.find(account => account.id === borrowEntry.id);
     return {...borrowEntry, ...acct};
   });
-  return (borrowers.length > 10) ? borrowers.slice(0, 10) : borrowers;
+  return borrowers.length > 10 ? borrowers.slice(0, 10) : borrowers;
 }
 
 module.exports = {
